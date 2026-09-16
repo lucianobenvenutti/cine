@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Cine Recite</title>
+<link rel="icon" type="image/x-icon" href="../favicon.ico">
+<link rel="apple-touch-icon" href="favicon-180.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════
+     LOGIN
+══════════════════════════ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-grid"></div>
+  <div class="login-glow"></div>
+
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="../logo.png" alt="Cine">
+      <div class="login-logo-text">
+        <span class="login-logo-title">NOMBRE DE TU CINE</span>
+        <span class="login-logo-sub">Panel Administrador</span>
+      </div>
+    </div>
+    <div class="login-divider"></div>
+
+    <div class="login-error" id="loginError">Usuario o contraseña incorrectos.</div>
+
+    <div class="form-group">
+      <label class="form-label">Usuario</label>
+      <input class="form-input" type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input class="form-input" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn-full" id="loginBtn">Ingresar</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     APP
+══════════════════════════ -->
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="../logo.png" alt="Logo">
+      <div class="sidebar-header-text">
+        <span class="sidebar-title">CINE</span>
+        <span class="sidebar-sub">Admin</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">General</div>
+      <div class="sidebar-link active" data-panel="dashboard">
+        <span class="sidebar-icon">📊</span> Dashboard
+      </div>
+
+      <div class="nav-section-label">Cartelera</div>
+      <div class="sidebar-link" data-panel="peliculas">
+        <span class="sidebar-icon">🎬</span> Películas
+      </div>
+      <div class="sidebar-link" data-panel="nueva-pelicula">
+        <span class="sidebar-icon">➕</span> Nueva película
+      </div>
+      <div class="sidebar-link" data-panel="horarios">
+        <span class="sidebar-icon">🕐</span> Horarios
+      </div>
+
+      <div class="nav-section-label">Sitio</div>
+      <div class="sidebar-link" onclick="window.open('../index.html','_blank')">
+        <span class="sidebar-icon">🌐</span> Ver sitio
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div class="user-info">
+          <div class="user-name" id="userNameDisplay">Administrador</div>
+          <div class="user-role">Admin</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- SIDEBAR OVERLAY (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <!-- Botón hamburguesa (visible solo en mobile) -->
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+      <span class="topbar-title" id="topbarTitle">DASHBOARD</span>
+      <div class="topbar-actions">
+        <button class="btn-sm" id="topbarCta" onclick="switchPanel('nueva-pelicula')">+ Nueva película</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Películas activas</div>
+            <div class="stat-value" id="stat-activas">0</div>
+            <div class="stat-sub">En cartelera ahora</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Próximos estrenos</div>
+            <div class="stat-value" id="stat-estrenos">0</div>
+            <div class="stat-sub">Cargados en el sistema</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Funciones hoy</div>
+            <div class="stat-value" id="stat-funciones">0</div>
+            <div class="stat-sub">Horarios programados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total películas</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-sub">En la base de datos</div>
+          </div>
+        </div>
+
+        <h3 style="font-family:var(--font-display);font-size:24px;letter-spacing:3px;margin-bottom:1rem;">CARGADAS RECIENTEMENTE</h3>
+        <div class="table-wrap">
+          <table class="admin-table" id="dashboard-table">
+            <thead>
+              <tr>
+                <th>Poster</th>
+                <th>Título</th>
+                <th>Estado</th>
+                <th>Género</th>
+                <th>Duración</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-tbody">
+              <tr><td colspan="6">
+                <div class="empty-state">
+                  <div class="empty-state-icon">🎬</div>
+                  <div class="empty-state-title">Sin películas</div>
+                  <div class="empty-state-sub">Cargá la primera película desde "Nueva película"</div>
+                </div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PELÍCULAS ── -->
+      <div class="panel" id="panel-peliculas">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+          <div style="display:flex;gap:10px;">
+            <button class="btn-sm" onclick="switchPanel('nueva-pelicula')">+ Nueva</button>
+            <button class="btn-sm-ghost" onclick="loadMovies()">↺ Actualizar</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Poster</th>
+                <th>Título</th>
+                <th>Sinopsis</th>
+                <th>Género</th>
+                <th>Duración</th>
+                <th>Clasificación</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="movies-tbody">
+              <tr><td colspan="8">
+                <div class="empty-state">
+                  <div class="empty-state-icon">🎬</div>
+                  <div class="empty-state-title">Sin películas</div>
+                  <div class="empty-state-sub">Cargá la primera película desde "Nueva película"</div>
+                </div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── NUEVA / EDITAR PELÍCULA ── -->
+      <div class="panel" id="panel-nueva-pelicula">
+
+        <input type="hidden" id="edit-id">
+
+        <!-- Info básica -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <span class="form-section-icon">🎬</span>
+            <span class="form-section-title">INFORMACIÓN BÁSICA</span>
+          </div>
+          <div class="form-body">
+            <div class="form-grid">
+              <div class="form-group span-2">
+                <label class="form-label">Título *</label>
+                <input class="form-input" type="text" id="f-titulo" placeholder="Ej: Amos del Universo">
+              </div>
+              <div class="form-group span-2">
+                <label class="form-label">Sinopsis *</label>
+                <textarea class="form-textarea" id="f-sinopsis" placeholder="Descripción de la película que verán los usuarios en el sitio..." rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Género *</label>
+                <input class="form-input" type="text" id="f-genero" placeholder="Ej: Acción · Aventura">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Duración</label>
+                <input class="form-input" type="text" id="f-duracion" placeholder="Ej: 2h 12min">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Clasificación</label>
+                <select class="form-select" id="f-clasificacion">
+                  <option value="">— Sin clasificar —</option>
+                  <option value="ATP">ATP — Apto para todo público</option>
+                  <option value="R13">R13 — No recomendada para menores de 13</option>
+                  <option value="R16">R16 — No recomendada para menores de 16</option>
+                  <option value="R18">R18 — No recomendada para menores de 18</option>
+                  <option value="AC">AC — Apta con reservas</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Estado *</label>
+                <select class="form-select" id="f-estado">
+                  <option value="en_cartelera">En cartelera</option>
+                  <option value="proximo">Próximamente</option>
+                  <option value="oculta">Oculta</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Año de estreno</label>
+                <input class="form-input" type="number" id="f-anio" placeholder="2025" min="1900" max="2099">
+              </div>
+              <div class="form-group">
+                <label class="form-label">País / Origen</label>
+                <input class="form-input" type="text" id="f-pais" placeholder="Ej: Estados Unidos">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Director</label>
+                <input class="form-input" type="text" id="f-director" placeholder="Ej: James Cameron">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Reparto principal</label>
+                <input class="form-input" type="text" id="f-reparto" placeholder="Ej: Tom Hanks, Scarlett Johansson">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Poster e imágenes -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <span class="form-section-icon">🖼️</span>
+            <span class="form-section-title">POSTER E IMÁGENES</span>
+          </div>
+          <div class="form-body">
+            <div class="poster-preview-wrap">
+              <div class="poster-preview" id="posterPreview">🎬</div>
+              <div class="poster-preview-fields">
+                <div class="form-group">
+                  <label class="form-label">URL del poster *</label>
+                  <input class="form-input" type="url" id="f-poster" placeholder="https://..." oninput="previewPoster(this.value)">
+                  <p class="form-hint">Pegá la URL directa a la imagen del poster (JPG, PNG, WebP). Podés subir la imagen a <a href="https://imgbb.com" target="_blank" style="color:var(--red);">imgBB</a> y pegar el link.</p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">URL imagen de fondo (opcional)</label>
+                  <input class="form-input" type="url" id="f-fondo" placeholder="https://... (imagen horizontal para el hero)">
+                  <p class="form-hint">Imagen panorámica para usar como fondo en la sección hero.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trailer -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <span class="form-section-icon">▶️</span>
+            <span class="form-section-title">TRAILER</span>
+          </div>
+          <div class="form-body">
+            <div class="form-group">
+              <label class="form-label">Link de YouTube del trailer</label>
+              <input class="form-input" type="url" id="f-trailer" placeholder="https://youtu.be/xxxxx  ó  https://www.youtube.com/watch?v=xxxxx">
+              <p class="form-hint">Podés pegar cualquier formato de URL de YouTube. El sistema lo convierte automáticamente para el reproductor integrado.</p>
+            </div>
+            <div id="trailer-preview-wrap" style="display:none;margin-top:1rem;">
+              <label class="form-label">Vista previa</label>
+              <div style="width:320px;aspect-ratio:16/9;background:#000;">
+                <iframe id="trailer-preview-iframe" width="320" style="aspect-ratio:16/9;border:none;" allowfullscreen></iframe>
+              </div>
+            </div>
+            <button class="btn-sm-ghost" style="margin-top:12px;" onclick="previewTrailer()">Vista previa del trailer</button>
+          </div>
+        </div>
+
+        <!-- Horarios -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <span class="form-section-icon">🕐</span>
+            <span class="form-section-title">HORARIOS Y FECHAS</span>
+          </div>
+          <div class="form-body">
+            <p class="form-hint" style="margin-bottom:1.25rem;">Seleccioná los días y agregá los horarios para cada uno.</p>
+
+            <div class="schedules-builder" id="schedules-builder">
+              <!-- Generado por JS -->
+            </div>
+
+            <button class="btn-add-schedule" onclick="addScheduleRow()" style="margin-top:10px;">+ Agregar día</button>
+          </div>
+        </div>
+
+        <!-- Guardar -->
+        <div style="display:flex;gap:12px;justify-content:flex-end;padding-top:0.5rem;">
+          <button class="btn-sm-ghost" onclick="clearForm()">Cancelar</button>
+          <button class="btn-sm" id="saveBtn" onclick="saveMovie()">Guardar película</button>
+        </div>
+
+      </div>
+
+      <!-- ── HORARIOS ── -->
+      <div class="panel" id="panel-horarios">
+        <div style="margin-bottom:1.5rem;">
+          <p style="color:var(--muted);font-size:14px;">Acá podés gestionar los horarios de todas las películas activas de manera centralizada.</p>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Película</th>
+                <th>Día</th>
+                <th>Horarios</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="horarios-tbody">
+              <tr><td colspan="4">
+                <div class="empty-state">
+                  <div class="empty-state-icon">🕐</div>
+                  <div class="empty-state-title">Sin horarios</div>
+                  <div class="empty-state-sub">Los horarios aparecen al cargar películas</div>
+                </div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Confirm modal -->
+<div class="confirm-modal" id="confirmModal">
+  <div class="confirm-backdrop" onclick="closeConfirm()"></div>
+  <div class="confirm-box">
+    <div class="confirm-title">ELIMINAR</div>
+    <p class="confirm-msg" id="confirmMsg">¿Seguro que querés eliminar esta película? Esta acción no se puede deshacer.</p>
+    <div class="confirm-actions">
+      <button class="btn-sm-ghost" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-sm" style="background:#e74c3c;" id="confirmOk">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════
+   CONFIG — apunta al backend PHP
+══════════════════════════ */
+const API = 'api.php';
+
+/* ══════════════════════════
+   ESTADO LOCAL
+══════════════════════════ */
+let movies = [];       // cache local
+let pendingDeleteId = null;
+
+const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
+/* ══════════════════════════
+   LOGIN
+══════════════════════════ */
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
+  if (!user || !pass) { errEl.textContent = 'Completá usuario y contraseña.'; errEl.style.display = 'block'; return; }
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'login', user, pass })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      sessionStorage.setItem('cr_user', user);
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      document.getElementById('userNameDisplay').textContent = user;
+      document.getElementById('userAvatar').textContent = user[0].toUpperCase();
+      loadMovies();
+    } else {
+      errEl.textContent = data.msg || 'Usuario o contraseña incorrectos.';
+      errEl.style.display = 'block';
+    }
+  } catch {
+    // Modo demo (sin backend conectado)
+    if (user === 'admin' && pass === 'admin') {
+      sessionStorage.setItem('cr_user', user);
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      document.getElementById('userNameDisplay').textContent = user;
+      document.getElementById('userAvatar').textContent = 'A';
+      loadMovies();
+    } else {
+      errEl.textContent = 'No se pudo conectar con el servidor. En modo demo: admin / admin.';
+      errEl.style.display = 'block';
+    }
+  }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('cr_user');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+});
+
+// Auto-login si hay sesión
+if (sessionStorage.getItem('cr_user')) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  const u = sessionStorage.getItem('cr_user');
+  document.getElementById('userNameDisplay').textContent = u;
+  document.getElementById('userAvatar').textContent = u[0].toUpperCase();
+  loadMovies();
+}
+
+/* ══════════════════════════
+   NAVEGACIÓN
+══════════════════════════ */
+const panelTitles = {
+  'dashboard':       'DASHBOARD',
+  'peliculas':       'PELÍCULAS',
+  'nueva-pelicula':  'NUEVA PELÍCULA',
+  'horarios':        'HORARIOS',
+};
+
+document.querySelectorAll('.sidebar-link[data-panel]').forEach(link => {
+  link.addEventListener('click', () => {
+    switchPanel(link.dataset.panel);
+    closeSidebar(); // cerrar sidebar en mobile al navegar
+  });
+});
+
+/* ══════════════════════════
+   SIDEBAR TOGGLE (mobile)
+══════════════════════════ */
+const sidebarEl      = document.getElementById('sidebar');
+const sidebarToggle  = document.getElementById('sidebarToggle');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+function openSidebar() {
+  sidebarEl.classList.add('open');
+  sidebarToggle.classList.add('open');
+  sidebarOverlay.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+  sidebarEl.classList.remove('open');
+  sidebarToggle.classList.remove('open');
+  sidebarOverlay.classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+sidebarToggle.addEventListener('click', () => {
+  sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+});
+
+// Cerrar al tocar el overlay
+sidebarOverlay.addEventListener('click', closeSidebar);
+
+// Cerrar con Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+function switchPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('active');
+
+  const link = document.querySelector(`.sidebar-link[data-panel="${id}"]`);
+  if (link) link.classList.add('active');
+
+  document.getElementById('topbarTitle').textContent = panelTitles[id] || id.toUpperCase();
+
+  if (id === 'peliculas') renderMoviesTable();
+  if (id === 'horarios')  renderHorariosTable();
+  if (id === 'nueva-pelicula') {
+    clearForm();
+    document.getElementById('topbarTitle').textContent = 'NUEVA PELÍCULA';
+  }
+}
+
+/* ══════════════════════════
+   LOAD MOVIES (API o localStorage demo)
+══════════════════════════ */
+async function loadMovies() {
+  try {
+    const res  = await fetch(API + '?action=get_movies');
+    const data = await res.json();
+    movies = data.movies || [];
+  } catch {
+    // Demo: usar localStorage
+    movies = JSON.parse(localStorage.getItem('cr_movies') || '[]');
+  }
+  renderDashboard();
+}
+
+function saveMoviesLocal() {
+  localStorage.setItem('cr_movies', JSON.stringify(movies));
+}
+
+/* ══════════════════════════
+   RENDER DASHBOARD
+══════════════════════════ */
+function renderDashboard() {
+  const activas  = movies.filter(m => m.estado === 'en_cartelera').length;
+  const estrenos = movies.filter(m => m.estado === 'proximo').length;
+  const funciones = movies.reduce((acc, m) => acc + (m.horarios?.reduce((a,h) => a + h.horas.length, 0) || 0), 0);
+
+  document.getElementById('stat-activas').textContent   = activas;
+  document.getElementById('stat-estrenos').textContent  = estrenos;
+  document.getElementById('stat-funciones').textContent = funciones;
+  document.getElementById('stat-total').textContent     = movies.length;
+
+  const tbody = document.getElementById('dashboard-tbody');
+  if (!movies.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">🎬</div><div class="empty-state-title">Sin películas</div><div class="empty-state-sub">Cargá la primera desde "Nueva película"</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = movies.slice(0, 8).map(m => `
+    <tr>
+      <td>${m.poster ? `<img src="${m.poster}" class="table-poster">` : `<div class="table-poster" style="background:var(--bg3);display:flex;align-items:center;justify-content:center;">🎬</div>`}</td>
+      <td><strong style="font-weight:400;">${m.titulo}</strong></td>
+      <td>${estadoPill(m.estado)}</td>
+      <td style="color:var(--muted);font-size:12px;">${m.genero || '—'}</td>
+      <td style="color:var(--muted);font-size:12px;">${m.duracion || '—'}</td>
+      <td><div class="table-actions">
+        <button class="btn-icon" title="Editar" onclick="editMovie(${m.id})">✏️</button>
+        <button class="btn-icon danger" title="Eliminar" onclick="confirmDelete(${m.id})">🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+function estadoPill(estado) {
+  const map = {
+    'en_cartelera': '<span class="pill pill-green">En cartelera</span>',
+    'proximo':      '<span class="pill pill-yellow">Próximamente</span>',
+    'oculta':       '<span class="pill pill-gray">Oculta</span>',
+  };
+  return map[estado] || `<span class="pill pill-gray">${estado}</span>`;
+}
+
+/* ══════════════════════════
+   RENDER TABLA PELÍCULAS
+══════════════════════════ */
+function renderMoviesTable() {
+  const tbody = document.getElementById('movies-tbody');
+  if (!movies.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">🎬</div><div class="empty-state-title">Sin películas</div><div class="empty-state-sub">Cargá la primera desde "Nueva película"</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = movies.map(m => `
+    <tr>
+      <td>${m.poster ? `<img src="${m.poster}" class="table-poster">` : `<div class="table-poster" style="background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;">🎬</div>`}</td>
+      <td><strong style="font-weight:500;">${m.titulo}</strong>${m.anio ? `<br><span style="color:var(--muted);font-size:11px;">${m.anio}</span>` : ''}</td>
+      <td style="max-width:200px;"><span style="color:var(--muted);font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${m.sinopsis || '—'}</span></td>
+      <td style="font-size:12px;color:var(--muted);">${m.genero || '—'}</td>
+      <td style="font-size:12px;color:var(--muted);white-space:nowrap;">${m.duracion || '—'}</td>
+      <td><span class="pill pill-gray">${m.clasificacion || '—'}</span></td>
+      <td>${estadoPill(m.estado)}</td>
+      <td><div class="table-actions">
+        <button class="btn-icon" title="Editar" onclick="editMovie(${m.id})">✏️</button>
+        <button class="btn-icon danger" title="Eliminar" onclick="confirmDelete(${m.id})">🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+/* ══════════════════════════
+   RENDER TABLA HORARIOS
+══════════════════════════ */
+function renderHorariosTable() {
+  const tbody = document.getElementById('horarios-tbody');
+  const rows = [];
+
+  movies.forEach(m => {
+    (m.horarios || []).forEach(h => {
+      rows.push({ pelicula: m.titulo, poster: m.poster, movieId: m.id, dia: h.dia, horas: h.horas });
+    });
+  });
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">🕐</div><div class="empty-state-title">Sin horarios</div><div class="empty-state-sub">Agregá horarios al cargar o editar una película</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><strong style="font-weight:400;">${r.pelicula}</strong></td>
+      <td><span class="pill pill-gray">${r.dia}</span></td>
+      <td><div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${r.horas.map(h => {
+          const hora    = (h.hora    || h).slice(0, 5);
+          const version = h.version || 'subtitulada';
+          const label   = version === 'doblada' ? 'DOB' : 'SUB';
+          const style   = version === 'doblada'
+            ? 'background:rgba(230,126,34,0.15);color:#e67e22;border:1px solid rgba(230,126,34,0.3);'
+            : 'background:rgba(55,138,221,0.12);color:#5aabee;border:1px solid rgba(90,171,238,0.25);';
+          return `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border-dim);padding:3px 10px;font-size:13px;">
+            ${hora}
+            <span style="font-size:9px;letter-spacing:1px;padding:1px 5px;border-radius:2px;${style}">${label}</span>
+          </span>`;
+        }).join('')}
+      </div></td>
+      <td><button class="btn-icon" onclick="editMovie(${r.movieId})">✏️</button></td>
+    </tr>
+  `).join('');
+}
+
+/* ══════════════════════════
+   FORM — HORARIOS BUILDER
+══════════════════════════ */
+function addScheduleRow(dia = '', horas = []) {
+  const builder = document.getElementById('schedules-builder');
+  const idx = builder.children.length;
+
+  const div = document.createElement('div');
+  div.className = 'schedule-row';
+  div.dataset.idx = idx;
+  div.innerHTML = `
+    <select class="form-select">
+      <option value="">— Día —</option>
+      ${DAYS.map(d => `<option value="${d}" ${d === dia ? 'selected' : ''}>${d}</option>`).join('')}
+    </select>
+    <select class="form-select version-select">
+      <option value="subtitulada">Subtitulada</option>
+      <option value="doblada">Doblada</option>
+    </select>
+    <div class="times-editor" id="times-${idx}">
+      ${horas.map(h => timeBadge(h.hora || h, h.version || 'subtitulada', idx)).join('')}
+      <div class="time-add-wrap">
+        <input class="time-input-inline" type="time" id="time-input-${idx}">
+        <button class="btn-time-add" onclick="addTime(${idx})">+</button>
+      </div>
+    </div>
+    <button class="btn-icon danger" title="Quitar día" onclick="this.closest('.schedule-row').remove()">✕</button>
+  `;
+  builder.appendChild(div);
+}
+
+function timeBadge(hora, version, idx) {
+  const label = version === 'doblada' ? 'DOB' : 'SUB';
+  const color  = version === 'doblada'
+    ? 'background:rgba(230,126,34,0.15);color:#e67e22;border-color:rgba(230,126,34,0.3);'
+    : 'background:rgba(55,138,221,0.12);color:#5aabee;border-color:rgba(90,171,238,0.25);';
+  return `<span class="time-tag" data-hora="${hora}" data-version="${version}">
+    ${hora}
+    <span style="font-size:9px;letter-spacing:1px;padding:1px 5px;border:1px solid;border-radius:2px;${color}">${label}</span>
+    <button onclick="this.closest('.time-tag').remove()">✕</button>
+  </span>`;
+}
+
+function addTime(idx) {
+  const input   = document.getElementById(`time-input-${idx}`);
+  const row     = input.closest('.schedule-row');
+  const version = row.querySelector('.version-select').value;
+  const val     = input.value;
+  if (!val) return;
+
+  const container = document.getElementById(`times-${idx}`);
+  const addWrap   = container.querySelector('.time-add-wrap');
+
+  const tag = document.createElement('span');
+  tag.className = 'time-tag';
+  const label = version === 'doblada' ? 'DOB' : 'SUB';
+  const color  = version === 'doblada'
+    ? 'background:rgba(230,126,34,0.15);color:#e67e22;border-color:rgba(230,126,34,0.3);'
+    : 'background:rgba(55,138,221,0.12);color:#5aabee;border-color:rgba(90,171,238,0.25);';
+  tag.dataset.hora    = val;
+  tag.dataset.version = version;
+  tag.innerHTML = `${val}
+    <span style="font-size:9px;letter-spacing:1px;padding:1px 5px;border:1px solid;border-radius:2px;${color}">${label}</span>
+    <button onclick="this.closest('.time-tag').remove()">✕</button>`;
+  container.insertBefore(tag, addWrap);
+
+  input.value = '';
+  input.focus();
+}
+
+function getSchedulesFromForm() {
+  const rows = document.querySelectorAll('.schedule-row');
+  const result = [];
+  rows.forEach(row => {
+    const dia = row.querySelector('select').value;
+    if (!dia) return;
+    const horas = [...row.querySelectorAll('.time-tag')].map(t => ({
+      hora:    t.dataset.hora    || t.childNodes[0].textContent.trim(),
+      version: t.dataset.version || 'subtitulada',
+    }));
+    if (horas.length) result.push({ dia, horas });
+  });
+  return result;
+}
+
+/* ══════════════════════════
+   POSTER PREVIEW
+══════════════════════════ */
+function previewPoster(url) {
+  const el = document.getElementById('posterPreview');
+  if (url && url.startsWith('http')) {
+    el.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='🎬'" alt="Poster">`;
+  } else {
+    el.innerHTML = '🎬';
+  }
+}
+
+/* ══════════════════════════
+   TRAILER PREVIEW
+══════════════════════════ */
+function previewTrailer() {
+  const url = document.getElementById('f-trailer').value.trim();
+  const id  = url.match(/(?:youtu\.be\/|v=|\/embed\/)([^?&]+)/)?.[1];
+  const wrap = document.getElementById('trailer-preview-wrap');
+  if (id) {
+    document.getElementById('trailer-preview-iframe').src = `https://www.youtube.com/embed/${id}`;
+    wrap.style.display = 'block';
+  } else {
+    showToast('URL de YouTube inválida.', 'error');
+  }
+}
+
+/* ══════════════════════════
+   SAVE MOVIE
+══════════════════════════ */
+async function saveMovie() {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  if (!titulo) { showToast('El título es obligatorio.', 'error'); return; }
+
+  const editId = document.getElementById('edit-id').value;
+
+  const movie = {
+    id:             editId ? parseInt(editId) : Date.now(),
+    titulo,
+    sinopsis:       document.getElementById('f-sinopsis').value.trim(),
+    genero:         document.getElementById('f-genero').value.trim(),
+    duracion:       document.getElementById('f-duracion').value.trim(),
+    clasificacion:  document.getElementById('f-clasificacion').value,
+    estado:         document.getElementById('f-estado').value,
+    anio:           document.getElementById('f-anio').value,
+    pais:           document.getElementById('f-pais').value.trim(),
+    director:       document.getElementById('f-director').value.trim(),
+    reparto:        document.getElementById('f-reparto').value.trim(),
+    poster:         document.getElementById('f-poster').value.trim(),
+    fondo:          document.getElementById('f-fondo').value.trim(),
+    trailer:        document.getElementById('f-trailer').value.trim(),
+    horarios:       getSchedulesFromForm(),
+  };
+
+  try {
+    const res = await fetch(API, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ action: editId ? 'update_movie' : 'save_movie', movie })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      if (editId) {
+        movies = movies.map(m => m.id === movie.id ? movie : m);
+      } else {
+        movie.id = data.id || movie.id;
+        movies.push(movie);
+      }
+    }
+  } catch {
+    // Demo mode
+    if (editId) {
+      movies = movies.map(m => m.id === movie.id ? movie : m);
+    } else {
+      movies.push(movie);
+    }
+    saveMoviesLocal();
+  }
+
+  showToast(editId ? 'Película actualizada ✓' : 'Película guardada ✓');
+  clearForm();
+  renderDashboard();
+  switchPanel('peliculas');
+}
+
+/* ══════════════════════════
+   EDIT MOVIE
+══════════════════════════ */
+function editMovie(id) {
+  const m = movies.find(x => x.id === id);
+  if (!m) return;
+
+  switchPanel('nueva-pelicula');
+  document.getElementById('topbarTitle').textContent = 'EDITAR PELÍCULA';
+  document.getElementById('saveBtn').textContent = 'Guardar cambios';
+
+  document.getElementById('edit-id').value       = m.id;
+  document.getElementById('f-titulo').value      = m.titulo || '';
+  document.getElementById('f-sinopsis').value    = m.sinopsis || '';
+  document.getElementById('f-genero').value      = m.genero || '';
+  document.getElementById('f-duracion').value    = m.duracion || '';
+  document.getElementById('f-clasificacion').value = m.clasificacion || '';
+  document.getElementById('f-estado').value      = m.estado || 'en_cartelera';
+  document.getElementById('f-anio').value        = m.anio || '';
+  document.getElementById('f-pais').value        = m.pais || '';
+  document.getElementById('f-director').value    = m.director || '';
+  document.getElementById('f-reparto').value     = m.reparto || '';
+  document.getElementById('f-poster').value      = m.poster || '';
+  document.getElementById('f-fondo').value       = m.fondo || '';
+  document.getElementById('f-trailer').value     = m.trailer || '';
+
+  previewPoster(m.poster || '');
+
+  // Horarios
+  document.getElementById('schedules-builder').innerHTML = '';
+  (m.horarios || []).forEach(h => addScheduleRow(h.dia, h.horas));
+}
+
+/* ══════════════════════════
+   DELETE
+══════════════════════════ */
+function confirmDelete(id) {
+  const m = movies.find(x => x.id === id);
+  pendingDeleteId = id;
+  document.getElementById('confirmMsg').textContent =
+    `¿Seguro que querés eliminar "${m?.titulo || 'esta película'}"? Esta acción no se puede deshacer.`;
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('open');
+  pendingDeleteId = null;
+}
+
+document.getElementById('confirmOk').addEventListener('click', async () => {
+  if (!pendingDeleteId) return;
+  const id = pendingDeleteId;
+  closeConfirm();
+
+  try {
+    await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete_movie', id })
+    });
+  } catch { /* demo */ }
+
+  movies = movies.filter(m => m.id !== id);
+  saveMoviesLocal();
+  renderDashboard();
+  renderMoviesTable();
+  showToast('Película eliminada.');
+});
+
+/* ══════════════════════════
+   CLEAR FORM
+══════════════════════════ */
+function clearForm() {
+  document.getElementById('edit-id').value = '';
+  ['f-titulo','f-sinopsis','f-genero','f-duracion','f-anio','f-pais',
+   'f-director','f-reparto','f-poster','f-fondo','f-trailer'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-clasificacion').value = '';
+  document.getElementById('f-estado').value = 'en_cartelera';
+  document.getElementById('posterPreview').innerHTML = '🎬';
+  document.getElementById('schedules-builder').innerHTML = '';
+  document.getElementById('trailer-preview-wrap').style.display = 'none';
+  document.getElementById('saveBtn').textContent = 'Guardar película';
+}
+
+/* ══════════════════════════
+   TOAST
+══════════════════════════ */
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type}`;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3500);
+}
+</script>
+</body>
+</html>
